@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Containerized LEMP Example</title>
+</head>
+
+<body>
+
+    <h1>Frontend (Nginx)</h1>
+
+    <p>
+        This is a simple containerized application.
+    </p>
+
+    <h2>Visitor Counter</h2>
+
+    <div id="msg">Loading...</div>
+
+    <button onclick="addVisit()">Add Visit</button>
+
+    <script>
+
+        // READ data from backend
+        function loadVisitors() {
+
+            fetch('/api')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('msg').innerText =
+                        'Visitors: ' + d.visitors;
+                })
+                .catch(e => {
+                    document.getElementById('msg').innerText =
+                        'API error: ' + e;
+                });
+        }
+
+
+        // WRITE data through backend to MySQL
+        function addVisit() {
+
+            fetch('/api/visit', {
+                method: 'POST'
+            })
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('msg').innerText =
+                        'Visitors: ' + d.visitors;
+                })
+                .catch(e => {
+                    document.getElementById('msg').innerText =
+                        'API error: ' + e;
+                });
+        }
+
+
+        // Load the current value when page opens
+        loadVisitors();
+
+    </script>
+
+</body>
+</html>

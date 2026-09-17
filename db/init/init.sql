@@ -1,0 +1,18 @@
+CREATE DATABASE IF NOT EXISTS appdb;
+
+CREATE USER IF NOT EXISTS 'appuser'@'%' IDENTIFIED BY 'changeme';
+
+GRANT ALL PRIVILEGES ON appdb.* TO 'appuser'@'%';
+
+FLUSH PRIVILEGES;
+
+USE appdb;
+
+CREATE TABLE IF NOT EXISTS visitors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    count INT NOT NULL
+);
+
+INSERT INTO visitors (count)
+SELECT 0
+WHERE NOT EXISTS (SELECT 1 FROM visitors);
