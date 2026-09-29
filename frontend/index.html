@@ -61,4 +61,212 @@
     </script>
 
 </body>
+    <body>
+<h1 style="width: 70%; height: auto;color: #431082; display: block; margin: 10px auto;text-align: center;">ASSIGNMENT-5</h1>
+<h1 style="width: 70%; height: auto;color: #431082; display: block; margin: 10px auto;text-align: center;">PART-A Question-Answer</h1>
+
+<h2 style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+Question 1: What is the difference between SAML and OAuth?
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+SAML and OAuth are both used for security, but they have different purposes. <b>SAML</b> is mainly used for authentication. For example, in the <b>CSC environment, I can use my CSC account to access services such as Rahti</b> instead of having a separate login for every service. This is an example of Single Sign-On (SSO).
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+<b>OAuth</b> is mainly used for authorization. It allows one application to access some information from another service without using the user's password. For example, an application can ask permission to access certain information from a Google account.
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+Question 2: What is a Web Application Firewall (WAF)?
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+A <b>Web Application Firewall (WAF)</b> is a security tool that protects a web application from harmful traffic and attacks. It can help block attacks such as <b>SQL injection and cross-site scripting (XSS)</b>.
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+In the three-container architecture I built in Week 4, I would place the WAF <b>before the frontend</b>. The traffic would be:
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: center;">
+<b>Route → WAF → Frontend → Backend → Database</b>
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+The WAF checks incoming requests and can block suspicious requests before they reach the application.
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+Question 3: What is YAML and why is it used in Kubernetes/Rahti?
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+<b>YAML</b> is a simple format used for configuration files. It is commonly used in <b>Kubernetes and Rahti</b> to describe things such as Pods, Deployments, Services, and Routes.
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+For example, in my Rahti project, I use YAML files to specify which Docker image my application should use and how many replicas should run. YAML is easy to read because it uses simple indentation. <b>JSON</b> can also be used, but YAML is usually easier to read and write.
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+Question 4: What are some public APIs and how could you use one in your Week 4 application?
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+There are many public APIs, such as <b>OpenWeather API, Google Maps API, and REST Countries API</b>. An API allows one application to get data or use a service from another application.
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+In my Week 4 exercise, I created my <b>own API in the backend</b> to communicate with my database. The frontend sends a request to the backend API, and the backend gets or updates the data in the database and sends the result back to the frontend.
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+For example, I used an API endpoint to <b>store and retrieve visitor information</b> from the database. This allowed the frontend to communicate with the database through the backend instead of accessing the database directly.
+</p>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto;text-align: left;">
+This is useful because the database is kept behind the backend, which gives better control and security.
+</p>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PART-B Redis Cache Service Deployment on Rahti</title>
+</head>
+
+<body>
+
+<h1 style="width: 70%; height: auto; color: #431082; display: block; margin: 10px auto; text-align: center;">
+    Redis Cache Service Deployment on Rahti
+</h1>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    1. Objective
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    The aim of this project was to add a Redis cache service to my existing
+    containerized application and deploy it on the CSC Rahti platform. The project
+    already contains a frontend, backend and MySQL database. Redis was added as
+    another service that can be used by the backend for fast temporary data storage.
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    2. Existing Project
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    My project is called <b>lemp-containers</b>. The GitHub repository contains the
+    frontend, backend, database and Rahti deployment files. The Rahti folder contains
+    Kubernetes YAML files for the different parts of the application.
+</p>
+
+<img src="https://a3s.fi/swift/v1/Redis%20Cache%20Service/Screenshot%20(1433).png"
+     alt="GitHub repository containing the project files"
+     style="width: 70%; height: auto; display: block; margin: 10px auto;">
+
+<p style="width: 70%; height: auto; display: block; margin: 5px auto 20px; text-align: center;">
+    <b>Figure 1: GitHub repository containing the project files.</b>
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    3. Rahti Deployment Files
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    The Rahti folder contains YAML files for the backend, frontend, MySQL and other
+    Kubernetes resources. A Redis service YAML file is also present. These YAML files
+    are used to create and manage the services in the Rahti project.
+</p>
+
+<img src="https://a3s.fi/swift/v1/Redis%20Cache%20Service/Screenshot%20(1434).png"
+     alt="Rahti folder showing Kubernetes YAML files"
+     style="width: 70%; height: auto; display: block; margin: 10px auto;">
+
+<p style="width: 70%; height: auto; display: block; margin: 5px auto 20px; text-align: center;">
+    <b>Figure 2: Rahti folder showing the Kubernetes YAML files, including redis-service.yaml.</b>
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    4. Redis Workload on Rahti
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    After deployment, the Rahti Workloads page shows Redis as a separate deployment.
+    It has one running pod. The same page also shows the frontend, backend and MySQL
+    deployments.
+</p>
+
+<img src="https://a3s.fi/swift/v1/Redis%20Cache%20Service/Screenshot%20(1439).png"
+     alt="Rahti Workloads page showing Redis deployment"
+     style="width: 70%; height: auto; display: block; margin: 10px auto;">
+
+<p style="width: 70%; height: auto; display: block; margin: 5px auto 20px; text-align: center;">
+    <b>Figure 3: Rahti Workloads page showing the Redis deployment with 1 of 1 pod.</b>
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    5. Redis Service
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    The Services page shows Redis as a separate Kubernetes service. The Redis service
+    is available on port <b>6379</b>, which is the normal Redis port. The page also
+    shows the existing frontend, backend and MySQL services.
+</p>
+
+<img src="https://a3s.fi/swift/v1/Redis%20Cache%20Service/Screenshot%20(1440).png"
+     alt="Rahti Services page showing Redis service"
+     style="width: 70%; height: auto; display: block; margin: 10px auto;">
+
+<p style="width: 70%; height: auto; display: block; margin: 5px auto 20px; text-align: center;">
+    <b>Figure 4: Rahti Services page showing the Redis service on port 6379.</b>
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    6. Application Running After Deployment
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    The application is accessible through the Rahti route. The frontend is running
+    and the visitor counter is displayed.
+</p>
+
+<img src="https://a3s.fi/swift/v1/Redis%20Cache%20Service/Screenshot%20(1437).png"
+     alt="Application running after deployment"
+     style="width: 70%; height: auto; display: block; margin: 10px auto;">
+
+<p style="width: 70%; height: auto; display: block; margin: 5px auto 20px; text-align: center;">
+    <b>Figure 5: Application running successfully through the Rahti route.</b>
+</p>
+
+
+<h2 style="width: 70%; height: auto; display: block; margin: 20px auto 10px; text-align: left;">
+    Conclusion
+</h2>
+
+<p style="width: 70%; height: auto; display: block; margin: 10px auto; text-align: left;">
+    The project demonstrates how a Redis cache service can be added to an existing
+    containerized application and deployed on the CSC Rahti platform. Redis was
+    deployed as a separate service with one running pod and exposed through the
+    Kubernetes service on port 6379. The existing frontend, backend and MySQL
+    services continued to run alongside Redis. The final application was accessible
+    through the Rahti route with the visitor counter displayed on the frontend.
+</p>
+
+<div style="height:250px;"></div>
+
+</body>
 </html>
