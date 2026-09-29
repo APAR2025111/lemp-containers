@@ -1,21 +1,29 @@
 from flask import Flask, jsonify
+import redis
 import os
 import mysql.connector
 
+
 app = Flask(__name__)
 
+
+# MySQL configuration
 DB_HOST = os.getenv("DB_HOST", "db")
 DB_USER = os.getenv("DB_USER", "appuser")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "changeme")
 DB_NAME = os.getenv("DB_NAME", "appdb")
 
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok"}
+# Redis connection
+redis_client = redis.StrictRedis(
+    host="redis",
+    port=6379,
+    db=0
+)
 
 
-@app.get("/api")
+# Get visitor count
+@app.route("/api", methods=["GET"])
 def index():
     conn = mysql.connector.connect(
         host=DB_HOST,
@@ -26,7 +34,6 @@ def index():
 
     cur = conn.cursor()
 
-    # READ data from MySQL
     cur.execute("SELECT count FROM visitors WHERE id = 1")
     row = cur.fetchone()
 
@@ -38,6 +45,7 @@ def index():
     })
 
 
+# Get current MySQL server time
 @app.get("/api/time")
 def time():
     conn = mysql.connector.connect(
@@ -49,7 +57,6 @@ def time():
 
     cur = conn.cursor()
 
-    # READ current server time from MySQL
     cur.execute("SELECT NOW()")
     row = cur.fetchone()
 
@@ -61,35 +68,18 @@ def time():
     })
 
 
+# Increase visitor count using Redis
 @app.post("/api/visit")
 def visit():
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
-
-    cur = conn.cursor()
-
-    # WRITE data to MySQL
-    cur.execute(
-        "UPDATE visitors SET count = count + 1 WHERE id = 1"
-    )
-
-    conn.commit()
-
-    # READ the new value
-    cur.execute("SELECT count FROM visitors WHERE id = 1")
-    row = cur.fetchone()
-
-    cur.close()
-    conn.close()
+    count = redis_client.incr("visitor_count")
 
     return jsonify({
-        "visitors": row[0]
+        "visitors": count
     })
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(
+        host="0.0.0.0",
+        port=8000
+    )

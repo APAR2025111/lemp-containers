@@ -1,0 +1,4 @@
+spec:
+  strategy:
+    dockerStrategy:
+      dockerfilePath: frontend/Dockerfile

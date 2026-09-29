@@ -38,6 +38,11 @@ services:
       - backend
     ports:
       - "8080:80"
-
+  redis:
+      image: redis:5.0.1
+      container_name: redis
+      ports:
+        - "6379:6379"
 volumes:
   db_data:
+   driver: local
