@@ -46,45 +46,69 @@ jobs:
         run: |
           docker push "$IMAGE"
 
-      # 7. Login to Rahti
+      # 7. Build the frontend Docker image
+      - name: Build frontend image
+        run: |
+          docker build \
+            -f frontend/Dockerfile \
+            -t "apar202511/lemp-containers-frontend:${GITHUB_SHA}" \
+            frontend
+
+      # 8. Push the frontend image to Docker Hub
+      - name: Push frontend image
+        run: |
+          docker push "apar202511/lemp-containers-frontend:${GITHUB_SHA}"
+
+      # 9. Login to Rahti
       - name: Login to Rahti
         run: |
           oc login \
             --server="${{ secrets.RAHTI_SERVER }}" \
             --token="${{ secrets.RAHTI_TOKEN }}"
 
-      # 8. Select the Rahti project
+      # 10. Select the Rahti project
       - name: Select Rahti project
         run: |
           oc project aps
 
-      # 9. Update the backend deployment
+      # 11. Update the frontend deployment
+      - name: Update frontend deployment
+        run: |
+          oc set image deployment/assignment-2 \
+            assignment-2="apar202511/lemp-containers-frontend:${GITHUB_SHA}"
+
+      # 12. Wait until the frontend deployment is ready
+      - name: Wait for frontend deployment
+        run: |
+          oc rollout status deployment/assignment-2    
+
+      # 13. Update the backend deployment
       - name: Update backend deployment
         run: |
           oc set image deployment/backend \
             backend="$IMAGE"
 
-      # 10. Wait until the new deployment is ready
+      # 14. Wait until the new deployment is ready
       - name: Wait for deployment
         run: |
           oc rollout status deployment/backend
 
-      # 11. Check running pods
+      # 15. Check running pods
       - name: Check pods
         run: |
           oc get pods
 
-      # 12. Check backend deployment
+      # 16. Check backend deployment
       - name: Check deployment
         run: |
           oc get deployment backend
 
-      # 13. Check services
+      # 17. Check services
       - name: Check services
         run: |
           oc get services
 
-      # 14. Check routes
+      # 18. Check routes
       - name: Check routes
         run: |
           oc get routes
