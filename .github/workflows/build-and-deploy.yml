@@ -1,4 +1,4 @@
-name: Build and Deploy Application
+name: Build and Deploy
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
 
-      # 1. Download latest project code
+      # 1. Checkout latest GitHub code
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -20,27 +20,28 @@ jobs:
       - name: Install OpenShift CLI
         uses: redhat-actions/oc-installer@v1
 
-      # 3. Set image names
+      # 3. Create image names
       - name: Set image names
         run: |
           echo "BACKEND_IMAGE=apar202511/lemp-containers-backend:${GITHUB_SHA}" >> $GITHUB_ENV
           echo "FRONTEND_IMAGE=apar202511/lemp-containers-frontend:${GITHUB_SHA}" >> $GITHUB_ENV
 
-      # 4. Build backend image
+      # 4. Build backend Docker image
       - name: Build backend Docker image
         run: |
           docker build \
             -f backend/Dockerfile \
             -t "$BACKEND_IMAGE" \
-            .
+            backend
 
-      # 5. Build frontend image
+      # 5. Build frontend Docker image
+      # IMPORTANT: frontend is the build context
       - name: Build frontend Docker image
         run: |
           docker build \
             -f frontend/Dockerfile \
             -t "$FRONTEND_IMAGE" \
-            .
+            frontend
 
       # 6. Login to Docker Hub
       - name: Login to Docker Hub
