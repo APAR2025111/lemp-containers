@@ -1,0 +1,90 @@
+name: Build and Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Download the latest project code from GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install OpenShift CLI
+      - name: Install OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+
+      # 3. Create Docker image name using the GitHub commit SHA
+      - name: Set image name
+        run: |
+          echo "IMAGE=apar202511/lemp-containers-backend:${GITHUB_SHA}" >> $GITHUB_ENV
+
+      # 4. Build the backend Docker image
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f backend/Dockerfile \
+            -t "$IMAGE" \
+            .
+
+      # 5. Login to Docker Hub
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
+          docker login \
+            -u "${{ secrets.DOCKERHUB_USERNAME }}" \
+            --password-stdin
+
+      # 6. Push the image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push "$IMAGE"
+
+      # 7. Login to Rahti
+      - name: Login to Rahti
+        run: |
+          oc login \
+            --server="${{ secrets.RAHTI_SERVER }}" \
+            --token="${{ secrets.RAHTI_TOKEN }}"
+
+      # 8. Select the Rahti project
+      - name: Select Rahti project
+        run: |
+          oc project aps
+
+      # 9. Update the backend deployment
+      - name: Update backend deployment
+        run: |
+          oc set image deployment/backend \
+            backend="$IMAGE"
+
+      # 10. Wait until the new deployment is ready
+      - name: Wait for deployment
+        run: |
+          oc rollout status deployment/backend
+
+      # 11. Check running pods
+      - name: Check pods
+        run: |
+          oc get pods
+
+      # 12. Check backend deployment
+      - name: Check deployment
+        run: |
+          oc get deployment backend
+
+      # 13. Check services
+      - name: Check services
+        run: |
+          oc get services
+
+      # 14. Check routes
+      - name: Check routes
+        run: |
+          oc get routes
