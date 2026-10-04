@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BACKEND_IMAGE: docker.io/apar2025111/lemp-containers-backend
-      FRONTEND_IMAGE: docker.io/apar2025111/lemp-containers-frontend
+      BACKEND_IMAGE: docker.io/apar202511/lemp-containers-backend
+      FRONTEND_IMAGE: docker.io/apar202511/lemp-containers-frontend
 
     steps:
 
