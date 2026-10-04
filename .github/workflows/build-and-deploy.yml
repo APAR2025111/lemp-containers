@@ -131,7 +131,7 @@ jobs:
             assignment-2="$FRONTEND_IMAGE_TAG"
 
       # --------------------------------------------------
-      # 15. Ensure MySQL deployment uses mysql:8.4
+      # 15. Update MySQL deployment
       # --------------------------------------------------
       - name: Update MySQL deployment
         run: |
@@ -139,28 +139,43 @@ jobs:
             mysql=mysql:8.4
 
       # --------------------------------------------------
-      # 16. Wait for backend deployment
+      # 16. Update Redis deployment
+      # --------------------------------------------------
+      - name: Update Redis deployment
+        run: |
+          oc set image deployment/redis \
+            redis=redis:5.0.1
+
+      # --------------------------------------------------
+      # 17. Wait for backend deployment
       # --------------------------------------------------
       - name: Wait for backend deployment
         run: |
           oc rollout status deployment/backend --timeout=180s
 
       # --------------------------------------------------
-      # 17. Wait for frontend deployment
+      # 18. Wait for frontend deployment
       # --------------------------------------------------
       - name: Wait for frontend deployment
         run: |
           oc rollout status deployment/assignment-2 --timeout=180s
 
       # --------------------------------------------------
-      # 18. Wait for MySQL deployment
+      # 19. Wait for MySQL deployment
       # --------------------------------------------------
       - name: Wait for MySQL deployment
         run: |
           oc rollout status deployment/mysql --timeout=180s
 
       # --------------------------------------------------
-      # 19. Check pods
+      # 20. Wait for Redis deployment
+      # --------------------------------------------------
+      - name: Wait for Redis deployment
+        run: |
+          oc rollout status deployment/redis --timeout=180s
+
+      # --------------------------------------------------
+      # 21. Check pods
       # --------------------------------------------------
       - name: Check pods
         run: |
@@ -170,7 +185,7 @@ jobs:
           oc get pods -o wide
 
       # --------------------------------------------------
-      # 20. Check deployments
+      # 22. Check deployments
       # --------------------------------------------------
       - name: Check deployments
         run: |
@@ -180,7 +195,7 @@ jobs:
           oc get deployments
 
       # --------------------------------------------------
-      # 21. Check services
+      # 23. Check services
       # --------------------------------------------------
       - name: Check services
         run: |
@@ -190,7 +205,7 @@ jobs:
           oc get services
 
       # --------------------------------------------------
-      # 22. Check routes
+      # 24. Check routes
       # --------------------------------------------------
       - name: Check routes
         run: |
@@ -200,7 +215,7 @@ jobs:
           oc get routes
 
       # --------------------------------------------------
-      # 23. Final status
+      # 25. Final status
       # --------------------------------------------------
       - name: Deployment complete
         run: |
