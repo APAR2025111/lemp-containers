@@ -4,111 +4,200 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+env:
+  DOCKERHUB_USERNAME: APAR2025111
+  BACKEND_IMAGE: APAR2025111/lemp-containers-backend
+  FRONTEND_IMAGE: APAR2025111/lemp-containers-frontend
 
 jobs:
   build-and-deploy:
+
     runs-on: ubuntu-latest
 
     steps:
 
+      # --------------------------------------------------
       # 1. Checkout repository
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Set image names
+
+      # --------------------------------------------------
+      # 2. Prepare Docker build context
+      # --------------------------------------------------
+      - name: Prepare Docker build context
+        run: |
+          echo "Repository structure:"
+          find . -maxdepth 2 -type f | sort
+
+
+      # --------------------------------------------------
+      # 3. Set image names
+      # --------------------------------------------------
       - name: Set image names
         run: |
-          echo "BACKEND_IMAGE=apar202511/lemp-containers-backend:${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "FRONTEND_IMAGE=apar202511/lemp-containers-frontend:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "BACKEND_IMAGE=${{ env.BACKEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_ENV
+          echo "FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_ENV
 
-      # 3. Build backend Docker image
+
+      # --------------------------------------------------
+      # 4. Login to Docker Hub
+      # --------------------------------------------------
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+      # --------------------------------------------------
+      # 5. Build backend Docker image
+      # --------------------------------------------------
       - name: Build backend Docker image
         run: |
           docker build \
             -f backend/Dockerfile \
-            -t "$BACKEND_IMAGE" \
+            -t ${{ env.BACKEND_IMAGE }} \
             backend
 
-      # 4. Build frontend Docker image
+
+      # --------------------------------------------------
+      # 6. Build frontend Docker image
+      # --------------------------------------------------
       - name: Build frontend Docker image
         run: |
           docker build \
             -f frontend/Dockerfile \
-            -t "$FRONTEND_IMAGE" \
+            -t ${{ env.FRONTEND_IMAGE }} \
             frontend
 
-      # 5. Login to Docker Hub
-      - name: Login to Docker Hub
+
+      # --------------------------------------------------
+      # 7. Push backend image
+      # --------------------------------------------------
+      - name: Push backend Docker image
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
-          docker login \
-            -u "${{ secrets.DOCKERHUB_USERNAME }}" \
-            --password-stdin
+          docker push ${{ env.BACKEND_IMAGE }}
 
-      # 6. Push backend image
-      - name: Push backend image
+
+      # --------------------------------------------------
+      # 8. Push frontend image
+      # --------------------------------------------------
+      - name: Push frontend Docker image
         run: |
-          docker push "$BACKEND_IMAGE"
+          docker push ${{ env.FRONTEND_IMAGE }}
 
-      # 7. Push frontend image
-      - name: Push frontend image
-        run: |
-          docker push "$FRONTEND_IMAGE"
 
-      # 8. Install OpenShift CLI
-      - name: Install OpenShift CLI
-        uses: redhat-actions/oc-installer@v1
-
+      # --------------------------------------------------
       # 9. Login to Rahti
+      # --------------------------------------------------
       - name: Login to Rahti
-        run: |
-          oc login \
-            --server="${{ secrets.RAHTI_SERVER }}" \
-            --token="${{ secrets.RAHTI_TOKEN }}"
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.RAHTI_SERVER }}
+          openshift_token: ${{ secrets.RAHTI_TOKEN }}
+          insecure_skip_tls_verify: true
 
+
+      # --------------------------------------------------
       # 10. Select Rahti project
+      # --------------------------------------------------
       - name: Select Rahti project
         run: |
           oc project aps
 
+
+      # --------------------------------------------------
       # 11. Update backend deployment
+      # --------------------------------------------------
       - name: Update backend deployment
         run: |
           oc set image deployment/backend \
-            backend="$BACKEND_IMAGE"
+            backend=${{ env.BACKEND_IMAGE }}
 
+          oc rollout restart deployment/backend
+
+
+      # --------------------------------------------------
       # 12. Update frontend deployment
+      # IMPORTANT:
+      # Rahti deployment is called assignment-2
+      # --------------------------------------------------
       - name: Update frontend deployment
         run: |
           oc set image deployment/assignment-2 \
-            assignment-2="$FRONTEND_IMAGE"
+            assignment-2=${{ env.FRONTEND_IMAGE }}
 
+          oc rollout restart deployment/assignment-2
+
+
+      # --------------------------------------------------
       # 13. Wait for backend deployment
+      # --------------------------------------------------
       - name: Wait for backend deployment
         run: |
           oc rollout status deployment/backend --timeout=180s
 
+
+      # --------------------------------------------------
       # 14. Wait for frontend deployment
+      # --------------------------------------------------
       - name: Wait for frontend deployment
         run: |
           oc rollout status deployment/assignment-2 --timeout=180s
 
+
+      # --------------------------------------------------
       # 15. Check pods
+      # --------------------------------------------------
       - name: Check pods
         run: |
-          oc get pods
+          oc get pods -o wide
 
+
+      # --------------------------------------------------
       # 16. Check deployments
+      # --------------------------------------------------
       - name: Check deployments
         run: |
           oc get deployments
 
+
+      # --------------------------------------------------
       # 17. Check services
+      # --------------------------------------------------
       - name: Check services
         run: |
           oc get services
 
+
+      # --------------------------------------------------
       # 18. Check routes
+      # --------------------------------------------------
       - name: Check routes
         run: |
+          oc get routes
+
+
+      # --------------------------------------------------
+      # 19. Final status
+      # --------------------------------------------------
+      - name: Deployment complete
+        run: |
+          echo "======================================"
+          echo "Deployment completed successfully"
+          echo "======================================"
+          echo "Backend image:"
+          echo "${{ env.BACKEND_IMAGE }}"
+          echo ""
+          echo "Frontend image:"
+          echo "${{ env.FRONTEND_IMAGE }}"
+          echo ""
+          echo "Rahti deployments:"
+          oc get deployments
+          echo ""
+          echo "Rahti routes:"
           oc get routes
