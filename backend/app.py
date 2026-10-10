@@ -6,6 +6,11 @@ import mysql.connector
 
 app = Flask(__name__)
 
+# Health check endpoint
+@app.get("/health")
+def health():
+    return jsonify({"status": "healthy"}), 200
+
 
 # MySQL configuration
 DB_HOST = os.getenv("DB_HOST", "db")
